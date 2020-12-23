@@ -1,0 +1,39 @@
+version: '3'
+
+networks:
+  my-net:
+
+volumes:
+  mongo-volume:
+
+services:
+  app-server:
+    depends_on:
+      - mongodb
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - my-net
+    container_name: appserver
+
+  mongodb:
+    image: 'mongo:latest'
+    container_name: 'mongodb'
+    environment:
+      - MONGO_INIT_DATABASE=myjourney
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - 27017:27017
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo-js:ro
+      - ./mongo-volume:/data/db
+    ports:
+      - '27017-27019:27017-27019'
+    networks:
+      - my-net
+
